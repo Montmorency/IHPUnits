@@ -14,6 +14,7 @@ let
             p.ihp
             units
             units-defs
+            units-parser
         ];
         otherDeps = p: with p; [
             # Native dependencies, e.g. imagemagick

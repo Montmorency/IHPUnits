@@ -15,14 +15,23 @@ defaultLayout :: Html -> Html
 defaultLayout inner = H.docTypeHtml ! A.lang "en" $ [hsx|
 <head>
     {metaTags}
-
     {stylesheets}
     {scripts}
-
-    <title>App</title>
+    <title>Units</title>
 </head>
 <body>
     <div class="container mt-4">
+        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+            <a class="navbar-brand" href={UnitsAction}>Units</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+               <div class="navbar-nav">
+                 <a class="nav-item nav-link" href={AboutAction}> About </a>
+               </div>
+            </div>
+        </nav>
         {renderFlashMessages}
         {inner}
     </div>
@@ -53,7 +62,6 @@ scripts = do
     when (isProduction FrameworkConfig.environment) [hsx|
         <script src="/prod.js"></script>
     |]
-
 
 metaTags = [hsx|
     <meta charset="utf-8"/>

@@ -17,5 +17,5 @@ data ViewContext = ViewContext
     }
 
 data StaticController
-    = UnitsAction | ConvertUnitsAction
+    = UnitsAction | ConvertUnitsAction | AboutAction
     deriving (Eq,Show,Data)
