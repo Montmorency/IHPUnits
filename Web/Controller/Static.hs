@@ -3,7 +3,6 @@ module Web.Controller.Static where
 import Web.Controller.Prelude
 import Web.View.Static.Units
 import Web.View.Static.About
-
 -- units 
 import Data.Metrology
 import Data.Metrology.Parser
@@ -26,21 +25,19 @@ paramDouble = param @Double
 vel1_si ::  MSI.Velocity
 vel1_si = 5 % [si| m/s |]
 
---paramString :: (?requestContext :: RequestContext) => ByteString -> String
---paramString = param @String
+setUnitPair :: Text -> Double -> Text -> UnitPair
+setUnitPair x y z = UnitPair {id=def, sourceUnit = x, sourceNumber=y, targetUnit=z, targetNumber=0.0, meta=def}
 
 instance Controller StaticController where
     action UnitsAction = render UnitsView
 
     action ConvertUnitsAction = do
-            let sourceNumber = paramDouble "sourceNumber" 
+            let sourceUnitNumber = paramDouble "sourceNumber" 
                 sourceUnitStr = paramText "sourceUnit"
                 targetUnitStr = paramText "targetUnit"
                 x = parseUnit testSymbolTable $ T.unpack sourceUnitStr
-            --y <- parseUnit targetUnitStr
-            --z <- redim $ sourceNumber % [si| m s/s^2 |]
-            --targetNumber = (z # [us|targetUnit|])
-            render UnitsView
+                z = setUnitPair sourceUnitStr sourceUnitNumber targetUnitStr 
+            redirectTo UnitsAction
 
     action AboutAction = render AboutView
         

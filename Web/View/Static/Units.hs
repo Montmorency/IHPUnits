@@ -29,20 +29,25 @@ instance View UnitsView ViewContext where
                 e.g. J/s/m^2 or  btu/hour/ft^2. 
                 The parsing convention is similar to that of: 
                 <a href="https://docs.microsoft.com/en-us/dotnet/fsharp/"> F# </a>.
-                You can exponentiate, juxtapose (i.e. place two unit symbols next to each other without
+                You can exponentiate, juxtapose (i.e. place two unit symbols 
+                next to each other without
                 an operator between them <samp> s s = s^2 </samp>), and finally,
-                divide and multiply, with that order of precedence (divide and multiply sharing the same level
+                divide and multiply, with that order of precedence (divide 
+                and multiply sharing the same level
                 of precedence). So, for example, <samp> m/s^2 </samp> and 
-                <samp>(m/s s)</samp> are the same (seconds exponentiated and seconds juxtaposed) unit, 
+                <samp>(m/s s)</samp> are the same (seconds exponentiated and 
+                seconds juxtaposed) unit, 
                 but <samp> m/s*s = (m/s)*s = m </samp>. See the units-defs package for 
-                systems that are defined. Whereever a unit does not have a standard string representation
-                or there is some ambiguity in the prefixes the user may pass them in here as a map; in the form
+                systems that are defined. Whereever a unit does not have a 
+                standard string representation
+                or there is some ambiguity in the prefixes the user may 
+                pass them in here as a map; in the form
                 ("kJ", Kilo :@ Joule).
             </p>
         </div>
         <div class = "units-convert"> 
             <h2> Convert Units </h2>
-                <form action={ConvertUnitsAction} method="POST">
+                <form action={ConvertUnitsAction} method="POST" class="edit-form">
                   <div class="form-row">
                     <div class="form-group col-md-2">
                       <label for="sourceNumber">Source Number</label>  
@@ -68,4 +73,18 @@ instance View UnitsView ViewContext where
                   <button type="submit" class="btn btn-primary"> Convert  </button>
                 </form>
         </div>
+        <div>
+        { renderForm testUnitPair }
+        </div>
 |]
+
+renderForm :: UnitPair -> Html
+renderForm unitpair = formFor unitpair [hsx|
+    {textField #sourceNumber}
+    {textField #sourceUnit}
+    {textField #targetNumber}
+    {textField #targetUnit}
+|]
+
+testUnitPair :: UnitPair
+testUnitPair  = UnitPair {id=def, sourceUnit = "m/s", sourceNumber=10.0, targetUnit="m/s", targetNumber=0.0, meta=def}
