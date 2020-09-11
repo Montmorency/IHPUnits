@@ -1,9 +1,25 @@
 module Application.Helper.View (
-    -- To use the built in login:
-    -- module IHP.LoginSupport.Helper.View
+    module IHP.LoginSupport.Helper.View,
+    buildFormRecord
+    
 ) where
 
--- Here you can add functions which are available in all your views
+import IHP.ViewPrelude
+import IHP.LoginSupport.Helper.View
+import IHP.ModelSupport
 
--- To use the built in login:
--- import IHP.LoginSupport.Helper.View
+import qualified Text.Blaze.Html5 as Html5
+
+buildFormRecord :: forall model viewContext parent id. (?viewContext :: viewContext, HasField "id" model id, Default id, Eq id) => FormContext model -> ((?viewContext :: viewContext, ?formContext :: FormContext model) => Html5.Html) -> Html5.Html
+buildFormRecord formContext inner =
+    let
+        theModel = model formContext
+        action = formAction formContext
+        isNewRecord = IHP.ModelSupport.isNew theModel
+        formId = formAction formContext
+        formClass :: Text = "record-form"
+        formInner = let ?formContext = formContext in inner
+    in
+        [hsx|<form method="POST" action={action} id={formId} class={formClass}>{formInner}</form>|]
+
+

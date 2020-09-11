@@ -6,5 +6,3 @@ import Web.Types
 -- Generator Marker
 instance AutoRoute StaticController
 
-instance AutoRoute UnitPairController
-type instance ModelControllerMap WebApplication UnitPair = UnitPairController

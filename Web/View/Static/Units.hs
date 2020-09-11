@@ -7,9 +7,15 @@ import Data.Metrology
 import Data.Metrology.Show ()
 import Data.Metrology.SI
 
-data UnitsView = UnitsView
+import qualified Text.Blaze.Html5 as Html5
+import IHP.NameSupport
+
+import Application.Helper.View
+
+data UnitsView = UnitsView {unitpair :: UnitPair}
+
 instance View UnitsView ViewContext where
-    html UnitsView = [hsx|
+    html UnitsView {..} = [hsx|
         <div class = "intro">
             <h1> Type Safe Units </h1>
             <p> 
@@ -73,18 +79,66 @@ instance View UnitsView ViewContext where
                   <button type="submit" class="btn btn-primary"> Convert  </button>
                 </form>
         </div>
+
         <div>
-        { renderForm testUnitPair }
+            {renderForm unitpair}
         </div>
 |]
 
 renderForm :: UnitPair -> Html
-renderForm unitpair = formFor unitpair [hsx|
-    {textField #sourceNumber}
-    {textField #sourceUnit}
-    {textField #targetNumber}
-    {textField #targetUnit}
+renderForm unitpair =  formForRecord' unitpair "ConvertUnitsAction" [hsx|
+    {textFieldRecord (show $ sourceNumber unitpair)}
+    {textFieldRecord (sourceUnit unitpair)}
+    {textFieldRecord (show $ targetNumber unitpair)}
+    {textFieldRecord (targetUnit unitpair)}
 |]
+    where
+        --formForRecord' :: UnitPair -> Text -> ((?viewContext :: viewContext, ?formContext :: FormContext record) => Html5.Html) -> Html5.Html
+        formForRecord' :: UnitPair -> Text -> Html5.Html -> Html5.Html
+        formForRecord' record action = buildFormRecord (createFormRecordContext record) {formAction = action}
 
-testUnitPair :: UnitPair
-testUnitPair  = UnitPair {id=def, sourceUnit = "m/s", sourceNumber=10.0, targetUnit="m/s", targetNumber=0.0, meta=def}
+createFormRecordContext :: forall record viewContext parent id application. (
+        ?viewContext :: viewContext
+        , Eq record
+        , Typeable record
+        , HasField "id" record id
+        , application ~ ViewApp viewContext
+        , HasField "meta" record MetaBag
+        ) => record -> FormContext record
+createFormRecordContext record =
+    FormContext
+        { model = record
+        , renderFormField = renderBootstrapFormField
+        , renderSubmit = renderBootstrapSubmitButton
+        , formAction = "" 
+        }
+
+textFieldRecord :: Text -> FormField --forall model.
+    --( ?formContext :: FormContext model
+    --, HasField fieldName model value
+    --, HasField "meta" model MetaBag
+    --, KnownSymbol fieldName
+    --, InputValue value
+    --, KnownSymbol (GetModelName model)
+    --) => Text -> FormField
+textFieldRecord field = FormField
+        { fieldType = TextInput
+        , fieldName = "" --cs fieldName
+        , fieldLabel = "" --fieldNameToFieldLabel (cs fieldName)
+        , fieldValue = field --inputValue ((getField @fieldName model) :: value)
+        , fieldInputId = "units"--cs (IHP.NameSupport.lcfirst (getModelName @model) <> "_" <> cs fieldName)
+        , validatorResult = Just ""
+        , fieldClass = ""
+        , labelClass = ""
+        , disableLabel = False
+        , disableGroup = False
+        , disableValidationResult = False
+        , fieldInput = const Html5.input
+        , renderFormField = renderBootstrapFormField --getField @"renderFormField" ?formContext
+        , helpText = ""
+        , placeholder = ""
+        , required = False
+        }
+    --where
+        --fieldName = symbolVal field
+        --FormContext { model } = ?formContext

@@ -9,7 +9,7 @@ module Web.View.Prelude
 
 import IHP.ViewPrelude
 import Web.View.Layout
-import Generated.Types
+import Generated.Types hiding (sourceUnit, targetUnit, sourceNumber, targetNumber)
 import Web.Types
 import Web.Routes ()
 import Web.View.Context

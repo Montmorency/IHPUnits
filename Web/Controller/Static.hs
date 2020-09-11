@@ -19,6 +19,8 @@ import Application.Helper.Systems (testSymbolTable)
 
 import qualified Data.Text as T
 
+--import IHP.ViewPrelude (hsx)
+
 paramDouble :: (?requestContext :: RequestContext) => ByteString -> Double
 paramDouble = param @Double
 
@@ -29,7 +31,9 @@ setUnitPair :: Text -> Double -> Text -> UnitPair
 setUnitPair x y z = UnitPair {id=def, sourceUnit = x, sourceNumber=y, targetUnit=z, targetNumber=0.0, meta=def}
 
 instance Controller StaticController where
-    action UnitsAction = render UnitsView
+    action UnitsAction = do
+            let unitpair = UnitPair {id=def, sourceUnit = "m/s", sourceNumber=10.0, targetUnit="m/s", targetNumber=0.0, meta=def}
+            render UnitsView { .. }
 
     action ConvertUnitsAction = do
             let sourceUnitNumber = paramDouble "sourceNumber" 
@@ -37,7 +41,11 @@ instance Controller StaticController where
                 targetUnitStr = paramText "targetUnit"
                 x = parseUnit testSymbolTable $ T.unpack sourceUnitStr
                 z = setUnitPair sourceUnitStr sourceUnitNumber targetUnitStr 
-            redirectTo UnitsAction
+                unitpair = UnitPair {id=def, sourceUnit = "m/s", sourceNumber=9.8, targetUnit="m/s", targetNumber=0.0, meta=def}
+            render UnitsView { .. }
+
+--          respondHTML [hsx|could autogenerate in here as well and avoid call to |]
+--          renderFile "static/terms.pdf" "application/pdf"
 
     action AboutAction = render AboutView
         
