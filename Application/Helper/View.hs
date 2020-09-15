@@ -16,8 +16,8 @@ buildFormRecord formContext inner =
         theModel = model formContext
         action = formAction formContext
         isNewRecord = IHP.ModelSupport.isNew theModel
-        formId = formAction formContext
-        formClass :: Text = "record-form"
+        formId = formAction formContext -- if isNewRecord then "" else formAction formContext
+        formClass :: Text = "record-form" --Text = if isNewRecord then "new-form" else "edit-form"
         formInner = let ?formContext = formContext in inner
     in
         [hsx|<form method="POST" action={action} id={formId} class={formClass}>{formInner}</form>|]

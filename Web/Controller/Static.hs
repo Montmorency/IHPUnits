@@ -42,10 +42,13 @@ instance Controller StaticController where
                 x = parseUnit testSymbolTable $ T.unpack sourceUnitStr
                 z = setUnitPair sourceUnitStr sourceUnitNumber targetUnitStr 
                 unitpair = UnitPair {id=def, sourceUnit = "m/s", sourceNumber=9.8, targetUnit="m/s", targetNumber=0.0, meta=def}
+            --to parse all the user generated fields:
+            --forEachWithIndex elements function.
             render UnitsView { .. }
-
 --          respondHTML [hsx|could autogenerate in here as well and avoid call to |]
 --          renderFile "static/terms.pdf" "application/pdf"
+--          renderFormlet :: [(Text,Type)] -> Html
+--          renderFormlet fields = Formlet
 
     action AboutAction = render AboutView
         

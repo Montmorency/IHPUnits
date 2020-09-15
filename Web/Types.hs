@@ -15,12 +15,11 @@ import Data.UUID (UUID)
 data WebApplication = WebApplication deriving (Eq, Show)
 
 --Writing a dataController that doesn't connect to database.
-data UnitPair' = UnitPair {id :: (Id' "unitpairs"), sourceUnit :: Text, sourceNumber :: Double, 
+data UnitPair = UnitPair {id :: (Id' "unitpairs"), sourceUnit :: Text, sourceNumber :: Double, 
                           targetUnit :: Text, targetNumber :: Double, meta :: MetaBag}
                 deriving (Eq, Show)
 
 instance InputValue UnitPair where inputValue = IHP.ModelSupport.recordToInputValue
-type UnitPair = UnitPair'
 
 type instance GetTableName UnitPair = "unitpairs"
 type instance GetModelByTableName "unitpairs" = UnitPair
@@ -31,27 +30,27 @@ type instance PrimaryKey "unitpairs" = UUID
 instance Record UnitPair where
     newRecord = UnitPair def def def def def def
 
-instance SetField "id" (UnitPair' ) (Id' "unitpairs") where
+instance SetField "id" (UnitPair ) (Id' "unitpairs") where
     setField newValue (UnitPair id sourceUnit sourceNumber targetUnit targetNumber meta) = 
         UnitPair newValue sourceUnit sourceNumber targetUnit targetNumber (meta { touchedFields = "id" : touchedFields meta })
 
-instance SetField "sourceUnit" (UnitPair' ) Text  where
+instance SetField "sourceUnit" (UnitPair ) Text  where
     setField newValue (UnitPair id sourceUnit sourceNumber targetUnit targetNumber meta) = 
         UnitPair id newValue sourceNumber targetUnit targetNumber meta
 
-instance SetField "sourceNumber" (UnitPair' ) Double  where
+instance SetField "sourceNumber" (UnitPair ) Double  where
     setField newValue (UnitPair id sourceUnit sourceNumber targetUnit targetNumber meta) = 
         UnitPair id sourceUnit newValue targetUnit targetNumber meta
 
-instance SetField "targetUnit" (UnitPair' ) Text  where
+instance SetField "targetUnit" (UnitPair ) Text  where
     setField newValue (UnitPair id sourceUnit sourceNumber targetUnit targetNumber meta) = 
         UnitPair id sourceUnit sourceNumber newValue targetNumber meta
 
-instance SetField "targetNumber" (UnitPair' ) Double  where
+instance SetField "targetNumber" (UnitPair ) Double  where
     setField newValue (UnitPair id sourceUnit sourceNumber targetUnit targetNumber meta) = 
         UnitPair id sourceUnit sourceNumber targetUnit newValue meta
 
-instance SetField "meta" (UnitPair' ) MetaBag where
+instance SetField "meta" (UnitPair ) MetaBag where
     setField newValue (UnitPair id sourceUnit sourceNumber targetUnit targetNumber meta) = 
         UnitPair id sourceUnit sourceNumber targetUnit targetNumber newValue
 --End of Record DataType

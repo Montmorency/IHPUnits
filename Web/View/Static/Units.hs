@@ -83,24 +83,31 @@ instance View UnitsView ViewContext where
         <div>
             {renderForm unitpair}
         </div>
-|]
+    |]
+        where
+            renderForm :: UnitPair -> Html
+            renderForm unitpair =  formForRecord unitpair [hsx|
+                {textFieldRecord unitpair sourceUnit }
+                {textFieldRecord unitpair targetUnit }
+                |]
 
-renderForm :: UnitPair -> Html
-renderForm unitpair =  formForRecord' unitpair "ConvertUnitsAction" [hsx|
-    {textFieldRecord (show $ sourceNumber unitpair)}
-    {textFieldRecord (sourceUnit unitpair)}
-    {textFieldRecord (show $ targetNumber unitpair)}
-    {textFieldRecord (targetUnit unitpair)}
-|]
-    where
-        --formForRecord' :: UnitPair -> Text -> ((?viewContext :: viewContext, ?formContext :: FormContext record) => Html5.Html) -> Html5.Html
-        formForRecord' :: UnitPair -> Text -> Html5.Html -> Html5.Html
-        formForRecord' record action = buildFormRecord (createFormRecordContext record) {formAction = action}
+            formForRecord :: forall record viewContext parent id application. (
+                               ?viewContext :: viewContext
+                              , Eq record
+                              , Typeable record
+                              , HasField "id" record id
+                              , HasField "meta" record MetaBag
+                              , application ~ ViewApp viewContext  
+                              , Default id
+                              , Eq id
+                              ) => record -> ((?viewContext :: viewContext, ?formContext :: FormContext record) => Html5.Html) -> Html5.Html
+            formForRecord record  = buildFormRecord (createFormRecordContext record)
 
 createFormRecordContext :: forall record viewContext parent id application. (
         ?viewContext :: viewContext
         , Eq record
         , Typeable record
+       -- , ModelFormAction application record
         , HasField "id" record id
         , application ~ ViewApp viewContext
         , HasField "meta" record MetaBag
@@ -108,24 +115,24 @@ createFormRecordContext :: forall record viewContext parent id application. (
 createFormRecordContext record =
     FormContext
         { model = record
-        , renderFormField = renderBootstrapFormField
-        , renderSubmit = renderBootstrapSubmitButton
+        , renderFormField = renderHorizontalBootstrapFormField
+        , renderSubmit = renderHorizontalBootstrapSubmitButton
         , formAction = "" 
         }
 
-textFieldRecord :: Text -> FormField --forall model.
-    --( ?formContext :: FormContext model
+textFieldRecord :: forall fieldName model value.
+    (?formContext :: FormContext model
     --, HasField fieldName model value
-    --, HasField "meta" model MetaBag
+    , HasField "meta" model MetaBag
     --, KnownSymbol fieldName
     --, InputValue value
     --, KnownSymbol (GetModelName model)
-    --) => Text -> FormField
-textFieldRecord field = FormField
+    ) => model -> (model -> Text) -> FormField
+textFieldRecord model field = FormField
         { fieldType = TextInput
         , fieldName = "" --cs fieldName
         , fieldLabel = "" --fieldNameToFieldLabel (cs fieldName)
-        , fieldValue = field --inputValue ((getField @fieldName model) :: value)
+        , fieldValue = field model --inputValue ((getField @fieldName model) :: value)
         , fieldInputId = "units"--cs (IHP.NameSupport.lcfirst (getModelName @model) <> "_" <> cs fieldName)
         , validatorResult = Just ""
         , fieldClass = ""
@@ -139,6 +146,6 @@ textFieldRecord field = FormField
         , placeholder = ""
         , required = False
         }
-    --where
+    where
         --fieldName = symbolVal field
-        --FormContext { model } = ?formContext
+        FormContext { model } = ?formContext
