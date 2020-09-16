@@ -89,19 +89,34 @@ instance View UnitsView ViewContext where
             renderForm unitpair =  formForRecord unitpair [hsx|
                 {textFieldRecord unitpair sourceUnit }
                 {textFieldRecord unitpair targetUnit }
+                {submitButton}
                 |]
 
-            formForRecord :: forall record viewContext parent id application. (
-                               ?viewContext :: viewContext
-                              , Eq record
-                              , Typeable record
-                              , HasField "id" record id
-                              , HasField "meta" record MetaBag
-                              , application ~ ViewApp viewContext  
-                              , Default id
-                              , Eq id
-                              ) => record -> ((?viewContext :: viewContext, ?formContext :: FormContext record) => Html5.Html) -> Html5.Html
-            formForRecord record  = buildFormRecord (createFormRecordContext record)
+formForRecord :: forall record viewContext parent id application. (
+                   ?viewContext :: viewContext
+                  , Eq record
+                  , Typeable record
+                  , HasField "id" record id
+                  , HasField "meta" record MetaBag
+                  , application ~ ViewApp viewContext  
+                  , Default id
+                  , Eq id
+                  ) => record -> ((?viewContext :: viewContext, ?formContext :: FormContext record) => Html5.Html) 
+                              -> Html5.Html
+formForRecord record  = buildFormRecord (createFormRecordContext record)
+
+formForRecord' :: forall record viewContext parent id application. (
+                   ?viewContext :: viewContext
+                  , Eq record
+                  , Typeable record
+                  , HasField "id" record id
+                  , HasField "meta" record MetaBag
+                  , application ~ ViewApp viewContext  
+                  , Default id
+                  , Eq id
+                  ) => record -> Text ->  ((?viewContext :: viewContext, ?formContext :: FormContext record) => Html5.Html) 
+                              -> Html5.Html
+formForRecord' record  action = buildFormRecord (createFormRecordContext record) {formAction = action}
 
 createFormRecordContext :: forall record viewContext parent id application. (
         ?viewContext :: viewContext
@@ -122,8 +137,8 @@ createFormRecordContext record =
 
 textFieldRecord :: forall fieldName model value.
     (?formContext :: FormContext model
-    --, HasField fieldName model value
     , HasField "meta" model MetaBag
+    --, HasField fieldName model value
     --, KnownSymbol fieldName
     --, InputValue value
     --, KnownSymbol (GetModelName model)
@@ -141,7 +156,7 @@ textFieldRecord model field = FormField
         , disableGroup = False
         , disableValidationResult = False
         , fieldInput = const Html5.input
-        , renderFormField = renderBootstrapFormField --getField @"renderFormField" ?formContext
+        , renderFormField = renderHorizontalBootstrapFormField --getField @"renderFormField" ?formContext
         , helpText = ""
         , placeholder = ""
         , required = False

@@ -34,7 +34,10 @@ instance Controller StaticController where
     action UnitsAction = do
             let unitpair = UnitPair {id=def, sourceUnit = "m/s", sourceNumber=10.0, targetUnit="m/s", targetNumber=0.0, meta=def}
             render UnitsView { .. }
-
+    --
+    --action ConvertMultipleUnitsActiond = do
+    --  let = allParams
+    
     action ConvertUnitsAction = do
             let sourceUnitNumber = paramDouble "sourceNumber" 
                 sourceUnitStr = paramText "sourceUnit"
