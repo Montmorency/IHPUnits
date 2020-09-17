@@ -20,38 +20,30 @@ import Application.Helper.Systems (testSymbolTable)
 import qualified Data.Text as T
 
 --import IHP.ViewPrelude (hsx)
+data UnitPair = UnitPair {id :: Int, sourceUnit :: Text, sourceNumber :: Double, 
+                          targetUnit :: Text, targetNumber :: Double, meta :: MetaBag}
+                          deriving (Eq, Show)
 
 paramDouble :: (?requestContext :: RequestContext) => ByteString -> Double
 paramDouble = param @Double
 
-vel1_si ::  MSI.Velocity
-vel1_si = 5 % [si| m/s |]
-
 setUnitPair :: Text -> Double -> Text -> UnitPair
-setUnitPair x y z = UnitPair {id=def, sourceUnit = x, sourceNumber=y, targetUnit=z, targetNumber=0.0, meta=def}
+setUnitPair x y z = UnitPair {id=def, sourceUnit=x, sourceNumber=y, targetUnit=z, targetNumber=0.0, meta=def}
 
 instance Controller StaticController where
     action UnitsAction = do
             let unitpair = UnitPair {id=def, sourceUnit = "m/s", sourceNumber=10.0, targetUnit="m/s", targetNumber=0.0, meta=def}
             render UnitsView { .. }
-    --
-    --action ConvertMultipleUnitsActiond = do
-    --  let = allParams
-    
+
     action ConvertUnitsAction = do
             let sourceUnitNumber = paramDouble "sourceNumber" 
                 sourceUnitStr = paramText "sourceUnit"
                 targetUnitStr = paramText "targetUnit"
+                symbolTable = paramText "symbolTable"
                 x = parseUnit testSymbolTable $ T.unpack sourceUnitStr
                 z = setUnitPair sourceUnitStr sourceUnitNumber targetUnitStr 
                 unitpair = UnitPair {id=def, sourceUnit = "m/s", sourceNumber=9.8, targetUnit="m/s", targetNumber=0.0, meta=def}
-            --to parse all the user generated fields:
-            --forEachWithIndex elements function.
             render UnitsView { .. }
---          respondHTML [hsx|could autogenerate in here as well and avoid call to |]
---          renderFile "static/terms.pdf" "application/pdf"
---          renderFormlet :: [(Text,Type)] -> Html
---          renderFormlet fields = Formlet
 
     action AboutAction = render AboutView
         

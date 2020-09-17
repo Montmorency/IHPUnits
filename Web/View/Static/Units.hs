@@ -57,110 +57,26 @@ instance View UnitsView ViewContext where
                   <div class="form-row">
                     <div class="form-group col-md-2">
                       <label for="sourceNumber">Source Number</label>  
-                      <input type="text" class="form-control" id="sourceNumber" placeholder="e.g. (1.01)">
+                      <input type="text" class="form-control" id="sourceNumber" value={sourceNumber unitpair}>
                     </div>
                     <div class="form-group col-md-2">
                       <label for="sourceUnit">Source Unit</label>  
-                      <input type="text" class="form-control" id="sourceUnit" placeholder="pure Unit (e.g. m/s)">
+                      <input type="text" class="form-control" id="sourceUnit" value={sourceUnit unitpair} >
                     </div>
                     <div class="form-group col-md-2">
                       <label for="targetNumber">Target Number</label>  
-                      <input type="text" class="form-control" id="targetNumber" placeholder="-.-" readonly="readonly">
+                      <input type="text" class="form-control" id="targetNumber" value={targetNumber unitpair} readonly="readonly">
                     </div>
                     <div class="form-group col-md-2">
                       <label for="targetUnit"> Target Unit</label>  
-                      <input type="text" class="form-control" id="targetUnit" placeholder="pure Unit (e.g. m/s)">
+                      <input type="text" class="form-control" id="targetUnit" value={targetUnit unitpair}>
                     </div>
                   </div>
                   <div class="form-group">
-                    <label for="inputAddress">Symbol Table</label>
+                    <label for="symbolTable">Symbol Table</label>
                     <input type="text" class="form-control" id="symbolTable" placeholder="(kg, Kilo :@ Gram)">
                   </div>
                   <button type="submit" class="btn btn-primary"> Convert  </button>
                 </form>
         </div>
-
-        <div>
-            {renderForm unitpair}
-        </div>
     |]
-        where
-            renderForm :: UnitPair -> Html
-            renderForm unitpair =  formForRecord unitpair [hsx|
-                {textFieldRecord unitpair sourceUnit }
-                {textFieldRecord unitpair targetUnit }
-                {submitButton}
-                |]
-
-formForRecord :: forall record viewContext parent id application. (
-                   ?viewContext :: viewContext
-                  , Eq record
-                  , Typeable record
-                  , HasField "id" record id
-                  , HasField "meta" record MetaBag
-                  , application ~ ViewApp viewContext  
-                  , Default id
-                  , Eq id
-                  ) => record -> ((?viewContext :: viewContext, ?formContext :: FormContext record) => Html5.Html) 
-                              -> Html5.Html
-formForRecord record  = buildFormRecord (createFormRecordContext record)
-
-formForRecord' :: forall record viewContext parent id application. (
-                   ?viewContext :: viewContext
-                  , Eq record
-                  , Typeable record
-                  , HasField "id" record id
-                  , HasField "meta" record MetaBag
-                  , application ~ ViewApp viewContext  
-                  , Default id
-                  , Eq id
-                  ) => record -> Text ->  ((?viewContext :: viewContext, ?formContext :: FormContext record) => Html5.Html) 
-                              -> Html5.Html
-formForRecord' record  action = buildFormRecord (createFormRecordContext record) {formAction = action}
-
-createFormRecordContext :: forall record viewContext parent id application. (
-        ?viewContext :: viewContext
-        , Eq record
-        , Typeable record
-       -- , ModelFormAction application record
-        , HasField "id" record id
-        , application ~ ViewApp viewContext
-        , HasField "meta" record MetaBag
-        ) => record -> FormContext record
-createFormRecordContext record =
-    FormContext
-        { model = record
-        , renderFormField = renderHorizontalBootstrapFormField
-        , renderSubmit = renderHorizontalBootstrapSubmitButton
-        , formAction = "" 
-        }
-
-textFieldRecord :: forall fieldName model value.
-    (?formContext :: FormContext model
-    , HasField "meta" model MetaBag
-    --, HasField fieldName model value
-    --, KnownSymbol fieldName
-    --, InputValue value
-    --, KnownSymbol (GetModelName model)
-    ) => model -> (model -> Text) -> FormField
-textFieldRecord model field = FormField
-        { fieldType = TextInput
-        , fieldName = "" --cs fieldName
-        , fieldLabel = "" --fieldNameToFieldLabel (cs fieldName)
-        , fieldValue = field model --inputValue ((getField @fieldName model) :: value)
-        , fieldInputId = "units"--cs (IHP.NameSupport.lcfirst (getModelName @model) <> "_" <> cs fieldName)
-        , validatorResult = Just ""
-        , fieldClass = ""
-        , labelClass = ""
-        , disableLabel = False
-        , disableGroup = False
-        , disableValidationResult = False
-        , fieldInput = const Html5.input
-        , renderFormField = renderHorizontalBootstrapFormField --getField @"renderFormField" ?formContext
-        , helpText = ""
-        , placeholder = ""
-        , required = False
-        }
-    where
-        --fieldName = symbolVal field
-        FormContext { model } = ?formContext
